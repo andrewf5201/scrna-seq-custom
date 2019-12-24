@@ -62,11 +62,18 @@ trimmomatic_pe_adpter=adapters/TruSeq3-PE.fa trimmomatic_se_adpter=adapters/TruS
 If you do not already have the raw read files somewhere on your computer, and the files can be downloaded from an online database (e.g. Gene Expression Omnibus), You have the option of using the program itself to download the files for you.
 
 The provided shell script, *splitMeta.sh*, reads in the metadata file and split it into multiple smaller metadata files based on the “batch_size” value defined in the configuration file.
-`./splitmeta.sh -d <metafile input directory> -f <metafile name> -s <batch size> -p <output filename prefix>"`
+```
+./splitmeta.sh -d <metafile input directory> -f <metafile name> -s <batch size> -p <output filename prefix>"
+```
 
 Next, the python script *generate_downloaded_scripts* creates the necessary executable files to run through each split metadata file.
-`python3 ​ generate_download_scripts.py  --inputdir INPUTDIR specify a full path of metadata file directory  --prefix PREFIX            specify metadata file name prefix  --method METHOD     specify download method: wget or fastq-dump  --destdir DESTDIR     specify a full path of download destination directory `
-
+```
+python3 ​ generate_download_scripts.py  
+        --inputdir INPUTDIR specify a full path of metadata file directory  
+        --prefix PREFIX            specify metadata file name prefix  
+        --method METHOD     specify download method: wget or fastq-dump  
+        --destdir DESTDIR     specify a full path of download destination directory `
+```
 This also generates another shell script, *runDownloadJob.sh* which runs through each of the executable files created by *generate_downloaded_scripts*, this should retrieve the raw read files needed to proceed with the analysis.
 
 # Step 3: Preprocessing
@@ -74,9 +81,14 @@ In order to prepare the raw read files for analysis, the files need to go throug
 
 To begin preprocessig, first run the python script *geneate_preprocess-scripts.py*, which will read in the raw read files, and create "batches" of files that will be run together as a group. 
 
-`python3 generate_preprocess_scripts.py --config   config_file_name `
+```
+python3 generate_preprocess_scripts.py --config   config_file_name
+```
 
 In addition, it will produce a script runPreprocessJob.sh, which serves to run the preprocessing for all created "batches"
 
 Template for created preprocessing scripts
-`./preprocess.sh -g <genome_type:Human or Mouse> -p <is_paired> -s <pipeline directory>  -i <fastq reads input directory> -o <preprocessing output directory> -f <fastq batch file ​ > `
+
+```
+./preprocess.sh -g <genome_type:Human or Mouse> -p <is_paired> -s <pipeline directory>  -i <fastq reads input directory> -o <preprocessing output directory> -f <fastq batch file ​ > 
+```
