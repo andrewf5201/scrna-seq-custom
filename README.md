@@ -7,7 +7,8 @@ The user needs to define the pipeline configuration properties in a “name=valu
 
 Sample Code for *config.properties*
 
-`#----- Dataset properties 
+```
+#----- Dataset properties 
 #- specifies dataset’s genome type: human or mouse 
 genome_type=human  
 #- indicates if the raw reads is paired-end or not 
@@ -33,4 +34,4 @@ batch_size=100
 #absolute path to a file contains human gene length data human_gene_length=/home/andrew/pipeline/config/hg38_gene_length.txt 
 #a common delimited string contains one or many analysis methods in [package_name]:[algorightm] format norm_methods=DESeq:default 
 #provides the column name of a factor in the metadata to perform analysis on specified_factor=cell_type 
-`
+```
