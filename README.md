@@ -79,7 +79,7 @@ This also generates another shell script, *runDownloadJob.sh* which runs through
 # Step 3: Preprocessing
 In order to prepare the raw read files for analysis, the files need to go through quality control, read alignment, and feature quantification. These preprocessing steps are covered by FASTQC, STAR, and HTSeq, respectively.
 
-To begin preprocessig, first run the python script *geneate_preprocess-scripts.py*, which will read in the raw read files, and create "batches" of files that will be run together as a group. 
+To begin preprocessing, first run the python script *geneate_preprocess-scripts.py*, which will read in the raw read files, and create "batches" of files that will be run together as a group. 
 
 ```
 python3 generate_preprocess_scripts.py --config   config_file_name
