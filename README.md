@@ -29,7 +29,8 @@ metadata_file=/home/pipeline/metadata/GSE75688_metadata.txt
 batch_size=100 
  
 #------Analysis Properties 
-# indicates if need to build count matrix from preprocessing program generated count files build_count_matrix=true 
+# indicates if need to build count matrix from preprocessing program generated count files 
+build_count_matrix=true 
 # defines count matrix file location. Used as the input for downstream analysis 
 matrix_file=/home/pipeline/analysis/BC/data/BC_counts_matrix.txt 
 # absolute path to a file contains human gene length data 
