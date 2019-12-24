@@ -43,9 +43,9 @@ Sample Code for *genome.properties*
 ```
 # human reference genome file location 
 HUMAN_GENOME=/home/genome/GRCh38 
-# human genome STAR index file location HUMAN_STAR_INDEX=/home/genome/GRCh38/STAR_index/ 
+# human genome STAR index file location 
+HUMAN_STAR_INDEX=/home/genome/GRCh38/STAR_index/ 
 # human Gencode annotation file location 
-
 HUMAN_GENOME_GTF=/home/genome/GRCh38/gencode.v26.annotation.gtf 
  
 #---Mouse genome properties 
