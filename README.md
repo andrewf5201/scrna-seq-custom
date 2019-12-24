@@ -57,3 +57,6 @@ MOUSE_GENOME_GTF=/home/genome/GRCm38/gencode.vM15.primary_assembly.annota tion.g
 trimmomatic_path=/home/Trimmomatic-0.36 trimmomatic_jar=trimmomatic-0.36.jar 
 trimmomatic_pe_adpter=adapters/TruSeq3-PE.fa trimmomatic_se_adpter=adapters/TruSeq3-SE.fa 
 ```
+# Step 2 (Optional): Downloading your Raw Read Files
+If you do not already have the raw read files somewhere on your computer, and the files can be downloaded from an online database (e.g. Gene Expression Omnibus), You have the option of using the program itself to download the files for you.
+
