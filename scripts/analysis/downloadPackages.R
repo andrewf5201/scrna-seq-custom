@@ -1,23 +1,4 @@
-#source("http://bioconductor.org/biocLite.R") 
-##DESeq
-#biocLite("DESeq2") 
-#biocLite("gplots")
-#biocLite("ggplot2")
-#biocLite("PoiClaClu")
-#biocLite("ggfortify")
-#biocLite("geneplotter")  
-#biocLite("hexbin")
-#biocLite("vsn")
-#biocLite("pheatmap")
-#biocLite("fission")
-#biocLite("org.Hs.eg.db")
-##Scater
-#biocLite("scater")
-#biocLite("yaml")
-#biocLite("ensembldb")
-#biocLite("EnsDb.Hsapiens.v79")
-##EdgeR
-#biocLite("edgeR")
+
 if (!requireNamespace("BiocManager"))
     install.packages("BiocManager", repos="http://cran.cnr.berkeley.edu")
 BiocManager::install()
