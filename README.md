@@ -98,3 +98,9 @@ Template for created preprocessing scripts
 The downstream analysis for this program is run using R, so the necessary R packages must be downloaded first. These are conveniently located in *downloadPackages.R*
 
 Next, the shell script *runAnalysis.sh*, is run, which performs the analyses and normalizations as specified by *config.properties*.
+
+| Bioconductor Package  | Accepted Normalization methods |
+| ------------- | ------------- |
+| scater  | "default" (computeSumFactors), "CPM", "TMM"  |
+| DESeq2  | "default" (estimateSizeFactors), "FPKM", "TMM"  |
+| edgeR  | "CPM", "TMM"  |
