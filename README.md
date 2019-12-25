@@ -92,3 +92,9 @@ Template for created preprocessing scripts
 ```
 ./preprocess.sh -g <genome_type:Human or Mouse> -p <is_paired> -s <pipeline directory>  -i <fastq reads input directory> -o <preprocessing output directory> -f <fastq batch file ​ > 
 ```
+*_NOTE: This step requires a lot of memory, run the preprocessing in a node or a computer that won't damage/impair the server_*
+
+# Step 4: Downstream Analysis
+The downstream analysis for this program is run using R, so the necessary R packages must be downloaded first. These are conveniently located in *downloadPackages.R*
+
+Next, the shell script *runAnalysis.sh*, is run, which performs the analyses and normalizations as specified by *config.properties*.
