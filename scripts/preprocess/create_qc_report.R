@@ -1,7 +1,7 @@
 library(fastqcr)
 args <- commandArgs(trailingOnly = TRUE)
-#qc.dir <-args[1]
-qc.dir <-  "/Users/lwang1/ucsd_project/fastQC_output/trimmed"
+qc.dir <-args[1]
+
 qc <- qc_aggregate(qc.dir)
 table <-summary(qc)
 

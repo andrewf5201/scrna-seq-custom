@@ -12,8 +12,12 @@ while [[ $# -gt 0 ]]; do
                 downloaddir="$2"
                 shift # past argument
                 ;;
+                -p|--is_paired)
+                IS_PAIRED="$2"
+                shift # past argument
+                ;;
                 -h|--help)
-                echo "Usage: ./download_with_wget.sh -m <metadata file full path> -d <download destination dir>"
+                echo "Usage: ./download_with_wget.sh -m <metadata file full path> -d <download destination dir> -p <is_paired>"
                 exit
                 ;;
                 *)
@@ -46,17 +50,25 @@ URL=${URL%$'\r'}
 name=${URL##*/}
 echo "url=$URL"
 echo "name=$name"
-zip_filename=${name%.gz}
-if [ -f "$zip_filename" ]
+fastq_filename=${name%.gz}
+if [ -f "$fastq_filename" ]
 then
   echo "skip downloading $name"
 else
   wget -c $URL
-  gunzip $name
-  if [ -e $name ]
+  if [[ "$name" == *.gz ]];
   then
-      rm $name
-  fi
+      gunzip $name
+      if [ -e $name ]
+      then
+          rm $name
+      fi
+   fi
+fi
+
+if [ "$IS_PAIRED" = "true" ]; then
+     run_num=${fastq_filename%.fastq}
+    ./deinterleave_fastq.sh deinterleave_paste.sh < $fastq_filename $run_num_1.fastq $run_num_2.fastq
 fi
 cd $downloaddir
 done } < $metadata

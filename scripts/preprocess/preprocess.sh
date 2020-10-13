@@ -15,6 +15,10 @@ while [[ $# -gt 0 ]]; do
                 IS_PAIRED="$2"
                 shift # past argument
                 ;;
+                -d|--is_dropseq)
+                IS_DROPSEQ="$2"
+                shift # past argument
+                ;;
                 -s|--pipeline_dir)
                 PIPELINE_DIR="$2"
                 shift # past argument
@@ -32,14 +36,14 @@ while [[ $# -gt 0 ]]; do
                 shift # past argument
                 ;;
 	            -h|--help)
-                echo "Usage: ./preprocess.sh -g <genome_type:Human or Mouse> -p <is_paired> -s <pipeline directory> \
+                echo "Usage: ./preprocess.sh -g <genome_type:Human or Mouse> -p <is paired end read: true or false>  -d <use Drop-Seq:true or false> -s <pipeline directory> \
                 -i <fastq reads input directory> -o <preprocess output directory> -f <fastq list file>"
                 exit
                 ;;
                 *)
                 # unknown option
                 echo "Unknown option: $key, exiting."
-                echo "Usage: ./preprocess.sh -g <genome_type:Human or Mouse> -i <is_paired> -s <pipeline directory> \
+                echo "Usage: ./preprocess.sh -g <genome_type:Human or Mouse> -p <paired end reads: true or false>  -d <use Drop-Seq method:true or false>  -s <pipeline directory> \
                 -i <fastq reads input directory> -o <preprocess output directory> -f <fastq list file>"
                 exit
                 ;;
@@ -69,10 +73,12 @@ mkdir -p trimmed_u
 #mkdir -p analysis_scripts
 mkdir -p paired_fastqs
 
-
- ##############Analysis SRA Data ###############
+echo "is_drop="$IS_DROPSEQ
+##############Analysis SRA Data ###############
 cd $SCRIPT_DIR
-if [ "$IS_PAIRED" = "true" ]; then
+if [ "$IS_DROPSEQ" = "true" ]; then
+    ./processDropSeq.sh -g $GENOME_TYPE -s $PIPELINE_DIR -i $INPUT_DIR -o $OUTPUT_DIR -f $FASTQS
+elif [ "$IS_PAIRED" = "true" ]; then
     ./processPairedSeq.sh -g $GENOME_TYPE -s $PIPELINE_DIR -i $INPUT_DIR -o $OUTPUT_DIR -f $FASTQS
 else
     ./processSingleSeq.sh -g $GENOME_TYPE -s $PIPELINE_DIR -i $INPUT_DIR -o $OUTPUT_DIR -f $FASTQS

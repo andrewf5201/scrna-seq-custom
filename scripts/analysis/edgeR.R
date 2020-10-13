@@ -2,64 +2,78 @@ library(edgeR)
 
 args <- commandArgs(trailingOnly = TRUE)
 
-algorithm<- args[1]
-input.folder<- args[2]
-output.folder<- args[3]
+#get input values
+args <- commandArgs(trailingOnly = TRUE)
+algorithm <-args[1]
+config_file <- args[2]
+script_dir <-args[3]
+
 #convert to lowercase
 algorithm <- tolower(algorithm)
 
-# read input files
-setwd(input.folder) 
-filelist = list.files(pattern="*counts.txt")
+function_script = paste(script_dir, "functions.R", sep='/')
+source(function_script)
 
-#assuming tab separated values with a header   
-datalist = lapply(filelist, function(x)read.table( x, header=TRUE, row.names=1, fill = FALSE)) 
-cts = do.call("cbind", datalist) 
-df <- read.table(metadata.file, header = TRUE, sep = "\t")
-fctrs=colnames(df)[6:length(colnames(df))]
+config <- read.properties(config_file)
+dirlist = get_dir_info(algorithm, config, packagename="edgeR")
+input.folder = dirlist$input.dir
+output.folder= dirlist$out.dir
+count.matrix.file = config$matrix_file
+metadata.file = config$metadata_file
+gene.length.file = config$gene_length_file
+specifiedFactor = config$cluster_factor
 
+sprintf("--loading count matirx file %s",count.matrix.file)
 
-factorlists=c()
-library(sqldf)
-
-for (fctr in fctrs){
-  print(fctr)
-  column_list=c()
-  for (i in (1:ncol(cts))){
-    id=colnames(cts)[i] 
-    sourcedf <- fn$sqldf("select $fctr from df where ID='$id' ")
-    sourcename <- as.character((sourcedf[1,1]))
-    column_name=sourcename
-    column_list=c(column_list,column_name)
-  }
-  factorlists[[length(factorlists)+1]]=column_list
+if (endsWith(count.matrix.file, "gz")) {
+  cts <- read.table(gzfile(count.matrix.file), sep="\t", header=TRUE)
+} else {
+  cts <- read.table(count.matrix.file, sep="\t", header=TRUE)
 }
-#colData=cbind(gsub("\\_.*","",colnames(cts)), conditionList ) 
+print(cts)
+
+factor_info=get_factors_info(metadata.file)
+fctrs=factor_info$factors
+factorlists=factor_info$factorlists
 colData=as.data.frame(factorlists)
 colnames(colData)=fctrs
 rownames(colData)=colnames(cts)
 print("colData created")
 
+#--create DGEList
 group= interaction(factorlists)
 dgList <- DGEList(counts=cts, genes=rownames(cts), group=group) 
 
 #Quality Assessment
 pseudoCounts <-log2(dgList$counts +1)
 head(pseudoCounts)
+
 hist(pseudoCounts) 
- 
+
 dgList[is.na(dgList)] <- 0 
 apply(dgList$counts,2,function(x) is.na(x))  
 
-#filtering
+#gene filtering by CPM
 countsPerMillion <- cpm(dgList)
+
+
+summary.file = paste(output.folder, "cpmSum1.txt" ,sep="/" )
+sink(summary.file)
 summary(countsPerMillion)
+sink()
+
 
 countCheck <- countsPerMillion > 1
 head(countCheck)
 keep <- which(rowSums(countCheck) >= 2)
 dgList <- dgList[keep,]
+
+#write summary to a file
+summary.file = paste(output.folder, "cpmSumdgList.txt" ,sep="/" )
+sink(summary.file)
 summary(cpm(dgList))
+sink()
+
 
 dgList$samples$lib.size
 dgList$samples$lib.size <- colSums(dgList$counts)
@@ -72,7 +86,7 @@ if (algorithm == "default") {
   dgList <- calcNormFactors(dgList)
   nc <- cpm(dgList, normalized.lib.sizes=FALSE)
   
-  defaultNormPlotName=paste(output.folder, '/edgeR/norm_default.png', sep="")
+  defaultNormPlotName=paste(output.folder, '/norm_default.png', sep="")
   png(defaultNormPlotName)
   plotMDS.DGEList(nc, col = as.numeric(group))
   dev.off()
@@ -80,7 +94,7 @@ if (algorithm == "default") {
   #tmm normalization
   dgList <- calcNormFactors(dgList, method="TMM")
   
-  tmmPlotName = paste(output.folder, '/edgeR/norm_tmm.png', sep="")
+  tmmPlotName = paste(output.folder, '/norm_tmm.png', sep="")
   png(tmmPlotName)
   plotMDS.DGEList(dgList)
   dev.off()
@@ -89,12 +103,12 @@ if (algorithm == "default") {
   cpm=cpm(dgList)
   cpm=cpm(dgList,lib.size=dgList$samples$lib.size,log = TRUE)
   
-  cpmPlotName = paste(output.folder, '/edgeR/norm_cpm.png', sep="")
+  cpmPlotName = paste(output.folder, '/norm_cpm.png', sep="")
   png(cpmPlotName) 
   plotMDS.DGEList(cpm)
   dev.off()
-} else if (algorithm == "rpkm") {  
-  gene_len <-read.delim(paste(input.folder,"hg38_gene_length.txt",sep=""), header=F, sep="\t")
+} else if (algorithm == "rpkm") {
+  gene_len <- read.delim(gene.length.file, header=F, sep="\t")
   colnames(gene_len) <- c("GeneName","Len") 
   m <- match(rownames(dgList), gene_len$GeneName)
   gene.lengths <- gene_len$Len[m]
@@ -102,7 +116,7 @@ if (algorithm == "default") {
   #rpkm normalization
   dgList<- rpkm(dgList, gene.lengths)  
   
-  rpkmPlotName = paste(output.folder, 'edgeR/norm_rpkm.png', sep="")
+  rpkmPlotName = paste(output.folder, '/norm_rpkm.png', sep="")
   png(rpkmPlotName)
   plotMDS.DGEList(dgList)
   dev.off()
@@ -116,7 +130,7 @@ dgList <- estimateTagwiseDisp( dgList , prior.n = 10 )
 summary( dgList$tagwise.dispersion )
 
 #meanVarPlot
-meanPlotName = paste(output.folder, '/edgeR/meanVar.png', sep="")
+meanPlotName = paste(output.folder, '/meanVar.png', sep="")
 png(meanPlotName)
 meanVarPlot <- plotMeanVar( dgList , show.raw.vars=TRUE ,
                             show.tagwise.vars=TRUE ,
@@ -131,18 +145,30 @@ meanVarPlot <- plotMeanVar( dgList , show.raw.vars=TRUE ,
 dev.off()
 
 #bcvPlot
-bcvPlot = paste(output.folder, '/edgeR/bcv.png', sep="")
+bcvPlot = paste(output.folder, '/bcv.png', sep="")
 png(bcvPlot) 
 plotBCV(dgList)  
 dev.off()
- 
+
 fit <- glmFit(dgList)
-lrt <- glmLRT(fit, coef=4)
+lrt <- glmLRT(fit, coef=1)
+
+#TODO Save result to file??
 edgeR_result <- topTags(lrt)
 deGenes <- decideTestsDGE(lrt, p=0.001)
 deGenes <- rownames(lrt)[as.logical(deGenes)]
+#write summary to a file
+DElist = paste(output.folder, "deGenes.txt" ,sep="/" )
+sink(DElist)
+deGenes
+sink()
+
+#TODO: save to file
+smear = paste(output.folder, '/plotSmear.png', sep="")
+png(smear) 
 plotSmear(lrt, de.tags=deGenes)
 abline(h=c(-1, 1), col=2)
+dev.off
 
 
 

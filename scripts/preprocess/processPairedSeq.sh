@@ -80,8 +80,7 @@ cd $INPUT_DIR
 echo "input="$INPUT_DIR
 for file in ${FASTQ_ARRAY[@]}; do
     run_num=${file%.fastq}
-    echo "runnum="$run_num
-    fastq-dump --split-3 $run_num
+    echo "moving splitted fastq to paired_fastqs dir"
 
     mv *_1.fastq $OUTPUT_DIR/paired_fastqs/
     mv *_2.fastq $OUTPUT_DIR/paired_fastqs/

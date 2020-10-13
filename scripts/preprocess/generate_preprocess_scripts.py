@@ -42,6 +42,7 @@ if __name__ == "__main__":
 
     genome_type = props['genome_type']
     is_paired = props['is_paired']
+    is_dropseq = props['is_dropseq']
     fastqs_input_dir = props['fastqs_input_dir']
     pipeline_dir = props['pipeline_dir']
     experiment = props['experiment']
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     individual_dirs = os.listdir(fastqs_input_dir)
     individual_dirs.sort()
 
-    script_template = Template('$SCRIPT_DIR/preprocess/preprocess.sh -g $genome_type -p $is_paired -s $PIPELINE_DIR -i '
+    script_template = Template('$SCRIPT_DIR/preprocess/preprocess.sh -g $genome_type -p $is_paired  -d is_dropseq -s $PIPELINE_DIR -i '
                                '$FASTQS_INPUT_DIR/$individual -o $PREPROCESS_DIR/$individual '
                                '-f $FASTQS_INPUT_DIR/$individual/$fastqs')
     multiqc_template = Template('multiqc $FASTQS_INPUT_DIR/$individual/fastQC_output $FASTQS_INPUT_DIR/$individual/star_output'
@@ -112,7 +113,7 @@ if __name__ == "__main__":
                 f=open(filename,"w")
                 f.write('#!/bin/bash\n\n')
                 f.write(script_template.safe_substitute(SCRIPT_DIR=script_dir, genome_type=genome_type,
-                                                        is_paired=is_paired, PIPELINE_DIR=pipeline_dir,
+                                                        is_paired=is_paired, is_dropseq=is_dropseq, PIPELINE_DIR=pipeline_dir,
                                                         FASTQS_INPUT_DIR=fastqs_input_dir, individual=individual,
                                                         PREPROCESS_DIR=preprocess_dir, fastqs=fastqs_filename))
                 f.close()

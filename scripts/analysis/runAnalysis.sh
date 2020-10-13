@@ -33,9 +33,10 @@ experiment=$(getProperty "experiment"  $CONF_PROPERTY_FILE)
 metadata_file=$(getProperty "metadata_file" $CONF_PROPERTY_FILE)
 count_matrix=$(getProperty "matrix_file" $CONF_PROPERTY_FILE)
 build_count_matrix=$(getProperty "build_count_matrix" $CONF_PROPERTY_FILE)
+is_dropseq=$(getProperty "is_dropseq" $CONF_PROPERTY_FILE)
 
 echo "matrix="$count_matrix
-echo $pipeline_dir
+echo "pipeline="$pipeline_dir
 cd $pipeline_dir
 
 
@@ -43,6 +44,9 @@ cd $pipeline_dir
 SCRIPT_DIR=$pipeline_dir/scripts/analysis
 PREPROCESS_DIR=$pipeline_dir/preprocess/$experiment
 ANALYSIS_DIR=$pipeline_dir/analysis/$experiment
+
+#setup analysis directory
+mkdir -p $ANALYSIS_DIR/data
 
 #echo $PREPROCESS_DIR
 if $build_count_matrix; then
@@ -55,25 +59,29 @@ if $build_count_matrix; then
            individual=${d##*/}
            echo $individual
            echo "subdir="$d
-           echo ${individual}_counts.txt
-           #create count matrix for each individual
-           Rscript $SCRIPT_DIR/createCountFile.R $PREPROCESS_DIR/$individual/htseqCount_output $ANALYSIS_DIR/data ${individual}_counts.txt $metadata_file
+           if [ $is_dropseq == "true" ]; then
+               echo ${individual}.dge.txt.gz
+               #create count matrix for each individual
+               Rscript $SCRIPT_DIR/createDGEFile.R $PREPROCESS_DIR/$individual/dge $ANALYSIS_DIR/data ${individual}_dge.txt.gz $metadata_file
+           else
+               echo ${individual}_counts.txt
+               #create count matrix for each individual
+               Rscript $SCRIPT_DIR/createCountFile.R $PREPROCESS_DIR/$individual/htseqCount_output $ANALYSIS_DIR/data ${individual}_counts.txt.gz $metadata_file
+            fi
          fi
       done
       #assemble all individual count file
-      Rscript $SCRIPT_DIR/buildCountMatrix.R $ANALYSIS_DIR/data $count_matrix
+      if [ $is_dropseq == "true" ]; then
+        Rscript $SCRIPT_DIR/buildDGEMatrix.R $ANALYSIS_DIR/data $count_matrix
+      else
+        Rscript $SCRIPT_DIR/buildCountMatrix.R $ANALYSIS_DIR/data $count_matrix
+      fi
   fi
 fi
 
 
-
-#setup analysis directory
-mkdir -p analysis
-mkdir -p analysis/$experiment
-mkdir -p analysis/$experiment/data
-
-resultdir=analysis/$experiment/results
-mkdir -p $resultdir
+#setup results directory
+resultdir=$ANALYSIS_DIR/results
 mkdir -p $resultdir/scater
 mkdir -p $resultdir/edgeR
 mkdir -p $resultdir/DESeq
@@ -99,15 +107,15 @@ do
     if [ "$packageName" = "deseq" ];
     then
         echo DESeq
-        Rscript $SCRIPT_DIR/Deseq.R  $algorithm $CONF_PROPERTY_FILE
+        Rscript $SCRIPT_DIR/Deseq.R  $algorithm $CONF_PROPERTY_FILE  $SCRIPT_DIR
     elif [ "$packageName" = "scater" ]
     then
         echo scater
-        Rscript $SCRIPT_DIR/scater_2.R  $algorithm $CONF_PROPERTY_FILE
+        Rscript $SCRIPT_DIR/scater.R  $algorithm $CONF_PROPERTY_FILE  $SCRIPT_DIR
     elif [ "$packageName" = "edger" ]
     then
         echo edgeR
-        Rscript $SCRIPT_DIR/edgeR.R  $algorithm $CONF_PROPERTY_FILE
+        Rscript $SCRIPT_DIR/edgeR.R $algorithm $CONF_PROPERTY_FILE  $SCRIPT_DIR
     else
         echo "unknown package name:$packageName, valid package names are DeSEQ, scater, and edgeR."
     fi

@@ -11,8 +11,12 @@ while [[ $# -gt 0 ]]; do
                 downloaddir="$2"
                 shift # past argument
                 ;;
+                -p|--is_paired)
+                IS_PAIRED="$2"
+                shift # past argument
+                ;;
                 -h|--help)
-                echo "Usage: ./download_with_fastq_dump.sh -m <metadata file full path> -d <download destination dir>"
+                echo "Usage: ./download_with_fastq_dump.sh -m <metadata file full path> -d <download destination dir>  -p <is_paired>"
                 exit
                 ;;
                 *)
@@ -50,7 +54,11 @@ if [ -f "$filename" ]
 then
   echo "skip downloading $name"
 else
-    fastq-dump $RUN
+    if [ "$IS_PAIRED" = "true" ]; then
+        fastq-dump --split-3 $RUN
+    else
+        fastq-dump $RUN
+    fi
 fi
 cd $downloaddir
 done } < $metadata
