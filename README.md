@@ -11,6 +11,8 @@ Sample Code for *config.properties*
 #----- Dataset properties 
 # specifies dataset’s genome type: human or mouse 
 genome_type=human  
+# indicate if drop-seq was used to collect reads or not
+is_dropseq=false
 # indicates if the raw reads is paired-end or not 
 is_paired=true  
 # run accession prefix (SRR, ERR or other) 
@@ -57,6 +59,17 @@ MOUSE_GENOME_GTF=/home/genome/GRCm38/gencode.vM15.primary_assembly.annota tion.g
 #---Trimmomatic trimming tool properties  
 trimmomatic_path=/home/Trimmomatic-0.36 trimmomatic_jar=trimmomatic-0.36.jar 
 trimmomatic_pe_adpter=adapters/TruSeq3-PE.fa trimmomatic_se_adpter=adapters/TruSeq3-SE.fa 
+
+#Drop-Seq properties
+HUMAN_GENOME_META_DIR=$HUMAN_GENOME/meta
+HUMAN_REFERENCE_FASTA=$HUMAN_GENOME_META_DIR/GRCh38.meta.fasta.gz
+
+MOUSE_GENOME_META_DIR=$MOUSE_GENOME/meta
+MOUSE_REFERENCE_FASTA=$MOUSE_GENOME_META_DIR/GRCm38.meta.fasta.gz
+
+DROP_SEQ_PATH=/home/andrew/tools/Drop-seq_tools-2.3.0
+NUM_CORE_BARCODE=2000
+MIN_NUM_GENES_PER_CEL=500
 ```
 # Step 2 (Optional): Downloading your Raw Read Files
 If you do not already have the raw read files somewhere on your computer, and the files can be downloaded from an online database (e.g. Gene Expression Omnibus), You have the option of using the program itself to download the files for you.
@@ -102,5 +115,5 @@ Next, the shell script *runAnalysis.sh*, is run, which performs the analyses and
 | Bioconductor Package  | Accepted Normalization methods |
 | ------------- | ------------- |
 | scater  | "default" (computeSumFactors), "CPM", "TMM"  |
-| DESeq2  | "default" (estimateSizeFactors), "FPKM", "TMM"  |
+| DESeq2  | "default" (estimateSizeFactors), "TMM"  |
 | edgeR  | "CPM", "TMM"  |
