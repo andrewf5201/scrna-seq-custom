@@ -38,7 +38,7 @@ human_gene_length=/home/pipeline/config/hg38_gene_length.txt
 # a common delimited string contains one or many analysis methods in [package_name]:[algorightm] 
 format norm_methods=DESeq:default 
 # provides the column name of a factor in the metadata to perform analysis on 
-specified_factor=cell_type 
+cluster_factor=cell_type 
 ```
 Sample Code for *genome.properties*
 ```
